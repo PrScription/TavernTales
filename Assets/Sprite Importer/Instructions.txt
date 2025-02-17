@@ -1,0 +1,38 @@
+===================
+= Sprite Importer =
+===================
+by DirePixel
+Version: 1.0
+
+================
+= Instructions =
+================
+This asset comes pre-configured to read settings files created in the Importer/ Resources directory. So begin by navigating to that directory.
+
+Next, right click within that directory and click Create > Sprite Importer > Settings, name it whichever you like.
+
+*NOTE* ALL SETTINGS FILES MUST BE IN THE IMPORTER FOLDER!  ALL GRAPHICS FILES MUST BE INSIDE A FOLDER WITHIN THE IMPORTER FOLDER AS WELL! YOU CAN
+MOVE YOUR GRAPHICS FILES TO ANOTHER FOLDER AFTER THEY ARE PROCESSED!
+
+With this new file selected, the Target Path is a folder within your Resources folder, the default is Importer/Sprites/ but you'll want to change this to the
+location of your sprites.
+
+This asset really begins to shine if you are working with many spritesheets. Typically, you'll have several spritesheets with similar size sprites in them. We'll want to throw each grouping of these types of spritesheets into separate folders. So for example you may have dozens of spritesheets that go into a Characters folder in Resources somewhere, and another few dozen that go into a separate NPCs folder. What's important here, is that you do not nest these folders within each other.
+
+Now, set the target path to match the location of your spritesheets. Set your desired pixels per unit. Check the Is Spritesheet checkbox and a few new options will appear.
+
+Set Sprite Size and Pivot Points respectively.  Now all you have to do is move your spritesheets into the target folder. If your spritesheets are already imported into Unity prior to installing this tool, you'll have to do a reimport after you move them by right clicking them and choosing Reimport. If you're working with hundreds or thousands of sheets, you may be better off just choosing Reimport All instead.
+
+Allow time for the process to finish, depending on the size and number of spritesheets this process may take awhile. But I guarantee it would be taking 100x longer if you were doing it manually.
+
+=======
+= FAQ =
+=======
+Q: So it works and slices all of my spritesheets, but it also included the empty sprite rectangles where there are no sprites?
+A: You can thank Unity for this. It is a design flaw that prevents these types of assets from ignoring them without causing and unknown number of side effects.  We used to be able to get around this, but wouldn't you know Unity patched it (lol). The empty rects shouldn't hurt anything.
+
+Q: Can you update this asset to allow me to import my spritesheets that have padding or offsets?
+A: I don't even want to wrap my head around the math of writing a pair of for loops that take this into account. But you're more than welcome to help yourself and update the code in SpriteImporter. If you figure it out let me know, I'll include it and give you a nod on my page. :)
+
+Q: Doesn't Unity already include this feature?
+A: This feature was added in Unity 2022.2 called Import Presets. However, many people don't have the luxury of updating their projects to the latest version of Unity and must fall back on the old ways.
