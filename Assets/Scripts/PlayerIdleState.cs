@@ -19,9 +19,15 @@ public class PlayerIdleState : PlayerGroundedState
     public override void Update()
     {
         base.Update();
-        if (xInput != 0)
+
+        // Stop horizontal movement when idle
+        player.SetVelocity(0, player.rb.linearVelocity.y);
+
+        // Transition to move state if any input is detected
+        if (Mathf.Abs(Input.GetAxisRaw("Horizontal")) > 0.1f ||
+            Mathf.Abs(Input.GetAxisRaw("Vertical")) > 0.1f)
+        {
             stateMachine.ChangeState(player.moveState);
-        if (yInput != 0)
-            stateMachine.ChangeState(player.moveState);
+        }
     }
 }

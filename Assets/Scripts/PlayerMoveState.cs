@@ -19,11 +19,17 @@ public class PlayerMoveState : PlayerGroundedState
     public override void Update()
     {
         base.Update();
-        player.SetVelocity(xInput * player.moveSpeed, rb.linearVelocity.y);
 
-        if (xInput == 0)
-            stateMachine.ChangeState(player.idleState);
-        if (yInput == 0)
+        // Handle 4-directional movement
+        float moveX = xInput * player.moveSpeed;
+        float moveY = yInput * player.moveSpeed;
+
+        // Apply movement
+        player.SetVelocity(moveX, moveY);
+
+        // Transition to idle state if no input
+        if (xInput == 0 && yInput == 0)
             stateMachine.ChangeState(player.idleState);
     }
 }
+

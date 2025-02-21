@@ -7,59 +7,41 @@ namespace DirePixel.Animation
     {
         #region Fields & Properties
 
-        /// <summary>
-        /// The replacement spritesheet to use.
-        /// </summary>
         [SerializeField]
         [Tooltip("The replacement spritesheet to use.")]
         protected Texture2D ReplacementTexture;
 
-        /// <summary>
-        /// The path in Resources where the replacement texture is located. (I recommend you put all files for this layer in this same folder.
-        /// </summary>
         [SerializeField]
         [Tooltip("The path in Resources where the replacement texture is located. (I recommend you put all files for this layer in this same folder.)")]
         protected string TexturePath = string.Empty;
 
-        /// <summary>
-        /// Set to true if this is a child sprite, like an outfit, eye color, etc.
-        /// </summary>
         [SerializeField]
-        [Tooltip("Set to true if this is a child sprite, like an outfit, eye color, etc.")]
+        [Tooltip("Set to true if this is a child sprite (i.e., an item) that should sync to the parent's animation frame.")]
         protected bool IsChild = false;
 
         [SerializeField]
         [Tooltip("Set to true if this child should sync to the parent renderer's flip settings.")]
         protected bool SyncRenderer = true;
 
-        /// <summary>
-        /// Spritesheet array containing all sprites within the ReplacementTexture.
-        /// </summary>
+        // New option: if false, the base object's sprite is NOT overridden.
+        [SerializeField]
+        [Tooltip("If false, the PaperDoll will not override the base sprite. Leave this off for your main Animator-controlled object.")]
+        protected bool OverrideBaseSprite = false;
+
         protected Sprite[] Spritesheet;
-        /// <summary>
-        /// This object's sprite renderer.
-        /// </summary>
         protected SpriteRenderer Renderer;
-        /// <summary>
-        /// Name of the current frame.  Used to find the current frame's number.
-        /// </summary>
         protected string AnimationFrameName;
-        /// <summary>
-        /// The index of the current frame. Used to set index of new frame.
-        /// </summary>
         protected int AnimationFrameIndex = 0;
-        /// <summary>
-        /// The parent object's Paper Doll component.  Used only by child objects.
-        /// </summary>
         protected PaperDoll ParentDoll;
 
         #endregion
 
-        #region Monobehavior Callbacks
+        #region Monobehaviour Callbacks
 
         private void Awake()
         {
-            Renderer = gameObject.GetComponent<SpriteRenderer>();
+            Renderer = GetComponent<SpriteRenderer>();
+            // Load sprites from the given texture path and texture name.
             Spritesheet = Resources.LoadAll<Sprite>(TexturePath + ReplacementTexture.name);
         }
 
@@ -68,52 +50,57 @@ namespace DirePixel.Animation
             if (IsChild)
             {
                 ParentDoll = transform.parent.GetComponent<PaperDoll>();
+                if (ParentDoll == null)
+                {
+                    Debug.LogError("Couldn't find a PaperDoll component on the parent.", gameObject);
+                    enabled = false;
+                }
             }
         }
 
         protected virtual void LateUpdate()
         {
-            if (IsChild == true && ParentDoll == null)
-            {
-                Debug.LogError("Couldn't find Paper Doll component in parent.");
-                enabled = false;
+            // If this is NOT a child and we're not set to override the base sprite,
+            // then allow the Animator (blend tree) to control the sprite.
+            if (!IsChild && !OverrideBaseSprite)
                 return;
-            }
 
             if (ReplacementTexture != null && Renderer != null && Spritesheet.Length > 0 && Renderer.sprite != null)
             {
+                // Get the current animation frame name from the Animator-driven sprite.
                 AnimationFrameName = Renderer.sprite.name;
-
-                if (IsChild == false)
+                if (!IsChild)
                 {
+                    // For base objects (when overriding is desired), extract the frame index from the name.
                     int.TryParse(AnimationFrameName.Substring(AnimationFrameName.LastIndexOf('_') + 1), out AnimationFrameIndex);
                 }
                 else
                 {
+                    // For child objects, get the frame index from the parent's PaperDoll component.
                     AnimationFrameIndex = ParentDoll.GetParentFrameIndex();
-                    if(SyncRenderer)
+                    if (SyncRenderer)
                     {
                         Renderer.flipX = ParentDoll.Renderer.flipX;
                         Renderer.flipY = ParentDoll.Renderer.flipY;
                     }
                 }
-
+                // Set this object's sprite from the spritesheet.
                 Renderer.sprite = Spritesheet[AnimationFrameIndex];
             }
             else if (ReplacementTexture == null)
             {
-                Debug.LogWarning("New Sprite has not been set. Drag and drop your spritesheet texture to the New Sprite Sheet field.", gameObject);
-                this.enabled = false;
+                Debug.LogWarning("Replacement Texture not set. Drag and drop your spritesheet texture.", gameObject);
+                enabled = false;
             }
             else if (Renderer == null)
             {
-                Debug.LogError("Sprite Renderer not found on this object.", gameObject);
-                this.enabled = false;
+                Debug.LogError("Sprite Renderer not found.", gameObject);
+                enabled = false;
             }
             else if (Spritesheet.Length <= 0)
             {
                 Debug.LogWarning(gameObject.name + " found no sprites in the spritesheet or the spritesheet was not found.", gameObject);
-                this.enabled = false;
+                enabled = false;
             }
         }
 
@@ -121,35 +108,26 @@ namespace DirePixel.Animation
 
         #region Public Methods
 
-        /// <summary>
-        /// This feature is used by child objects to get the frameIndex from the parent base sprite's Paper Doll component
-        /// </summary>
-        /// <returns></returns>
         public virtual int GetParentFrameIndex()
         {
-            if (IsChild == false)
+            if (!IsChild)
             {
                 return AnimationFrameIndex;
             }
             else
             {
-                Debug.LogError("wtf");
+                Debug.LogError("Called GetParentFrameIndex on a child PaperDoll. This should only be called on the base PaperDoll.");
                 return 0;
             }
         }
 
-        /// <summary>
-        /// Use this to swap between textures (i.e. hair style change, clothing change, etc.) Only add a texture path if it is different than the current, otherwise leave it alone.
-        /// </summary>
-        /// <param name="texture"></param>
         public virtual void SetTexture(Texture2D texture, string texturePath = "")
         {
             ReplacementTexture = texture;
-            if(!texturePath.Equals(""))
+            if (!string.IsNullOrEmpty(texturePath))
             {
                 TexturePath = texturePath;
             }
-
             Spritesheet = Resources.LoadAll<Sprite>(TexturePath + ReplacementTexture.name);
         }
 

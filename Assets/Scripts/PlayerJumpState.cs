@@ -9,6 +9,7 @@ public class PlayerJumpState : PlayerState
     public override void Enter()
     {
         base.Enter();
+        // Apply jump force while preserving horizontal velocity
         rb.linearVelocity = new Vector2(rb.linearVelocity.x, player.jumpForce);
     }
 
@@ -21,6 +22,7 @@ public class PlayerJumpState : PlayerState
     {
         base.Update();
 
+        // Transition to air state when falling
         if (rb.linearVelocity.y < 0)
             stateMachine.ChangeState(player.airState);
     }

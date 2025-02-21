@@ -19,7 +19,15 @@ public class PlayerAirState : PlayerState
     public override void Update()
     {
         base.Update();
-        if(player.IsGroundDetected())
+
+        // Allow movement in the air
+        float moveX = xInput * player.moveSpeed;
+        float moveY = yInput * player.moveSpeed;
+
+        player.SetVelocity(moveX, rb.linearVelocity.y);
+
+        // Transition to idle state when grounded
+        if (player.IsGroundDetected())
             stateMachine.ChangeState(player.idleState);
     }
 }
