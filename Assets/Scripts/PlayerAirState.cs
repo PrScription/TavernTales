@@ -22,7 +22,8 @@ public class PlayerAirState : PlayerState
 
         // Allow movement in the air
         float moveX = xInput * player.moveSpeed;
-        float moveY = yInput * player.moveSpeed;
+        //float moveY = yInput * player.moveSpeed;
+        
 
         player.SetVelocity(moveX, rb.linearVelocity.y);
 
